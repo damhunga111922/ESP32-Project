@@ -1,1 +1,86 @@
+#include <Wire.h>
+#include "DHT.h"       
+#include <LiquidCrystal_I2C.h>;
+LiquidCrystal_I2C lcd(0x27,16,2);
 
+int Fire_digital = 14;   
+int DHTPIN = 12;      
+int DHTTYPE = DHT11; 
+
+
+int LEDvang = 13;
+int LEDdo = 15;
+int relay = 16;
+int relaymode = 0; 
+
+DHT dht(DHTPIN, DHTTYPE);
+
+void setup() {
+  Serial.begin(9600);
+  dht.begin();
+  pinMode(Fire_digital, INPUT);   
+  pinMode(LEDdo, OUTPUT);
+  pinMode(LEDvang, OUTPUT);
+  pinMode(relay, OUTPUT); 
+  lcd.init();  
+  lcd.backlight();  
+}
+
+
+void loop() {
+ //Cam bien khoi MQ2  
+ int value = analogRead(A0);    
+  Serial.println(value);  
+    if (value > 580){
+    digitalWrite(LEDvang,HIGH);
+    relaymode == 1;
+  }
+  else{
+  digitalWrite(LEDvang,LOW); 
+  }  
+  if (relaymode ==1){
+    digitalWrite (relay, HIGH);
+  }
+  else{
+   digitalWrite (relay, LOW); 
+  }
+ 
+//Cam bien lua
+  int firesensorDigital = digitalRead(Fire_digital);
+  Serial.print("Fire Class: ");
+  Serial.print(firesensorDigital);
+  Serial.print("\t");
+    if (firesensorDigital == 1) {
+    Serial.println("Fire");
+    digitalWrite (LEDdo, HIGH);
+    digitalWrite(relay, LOW);
+    delay(15);
+    } 
+    else {
+    digitalWrite (LEDdo, LOW);
+    digitalWrite(relay,HIGH);
+  }
+
+//Cam bien Do am, Nhiet do  
+  float h = dht.readHumidity();    
+  float t = dht.readTemperature(); 
+  Serial.print("Nhiet do: ");
+  Serial.println(t);               
+  Serial.print("Do am: ");
+  Serial.println(h);  
+  delay(500); 
+//Man hinh
+  lcd.setCursor(0,0);
+  lcd.print("Nhiet do: ");   
+  lcd.setCursor(10,0);
+  lcd.print(t);
+  lcd.print(" ");
+  lcd.write(1);
+  lcd.print("C");   
+  
+  lcd.setCursor(0,1);
+  lcd.print("Do am: ");  
+  lcd.setCursor(7,1);
+  lcd.print(round(h));
+  lcd.print(" %");       
+}
