@@ -1,0 +1,87 @@
+#include "DHT.h"       
+
+int LEDxanh = 14;
+int LEDdo = 13; 
+int coi = 0;
+int quat = 15;
+int door = 4;
+int doorstate = 0;
+
+int Fire_digital = 5;   
+int DHTPIN = 12;      
+int DHTTYPE = DHT11;  
+
+DHT dht(DHTPIN, DHTTYPE);
+
+void setup() {
+  Serial.begin(9600);
+  dht.begin();
+  pinMode(LEDdo, OUTPUT);
+  pinMode(LEDxanh, OUTPUT);
+  pinMode(coi, OUTPUT);
+  pinMode(quat, OUTPUT);
+  pinMode(Fire_digital, INPUT);    
+  pinMode(door, OUTPUT);
+}
+
+void loop() {
+int doorstate = digitalRead(door);
+Serial.println(doorstate);
+int quatstate = digitalRead(quat);
+Serial.println("Quat:");
+Serial.print(quatstate);
+//Serial.print("\t");
+ 
+ //Cam bien khoi MQ2
+  int value = analogRead(A0);   
+  Serial.println(value);    
+ 
+  if (value > 580){
+    digitalWrite(LEDxanh,HIGH);
+    digitalWrite(door, HIGH);
+    delay(15);
+    digitalWrite(LEDxanh,LOW);
+    digitalWrite(quat, HIGH);
+    
+  }
+  else{
+   digitalWrite(LEDxanh,LOW); 
+   digitalWrite(quat, LOW);
+   digitalWrite(door,LOW);
+  }
+  
+//Cam bien lua
+  int firesensorDigital = digitalRead(Fire_digital);
+  Serial.print("Fire Class: ");
+  Serial.print(firesensorDigital);
+  Serial.print("\t");
+  if (firesensorDigital == 1) {
+    Serial.println("Fire");
+    digitalWrite (LEDdo, HIGH);
+    digitalWrite (coi, HIGH); 
+    delay(15);
+    digitalWrite (LEDdo, LOW);
+    digitalWrite (coi, HIGH);  
+    digitalWrite (door, HIGH);
+    //doorstate == digitalRead(door);
+    //Serial.println(doorstate);
+  }
+  else {
+    Serial.println("No Fire");
+    digitalWrite (coi, LOW);
+    digitalWrite(door,LOW);
+  }
+
+//Cam bien Do am, Nhiet do  
+  float h = dht.readHumidity();    
+  float t = dht.readTemperature(); 
+
+  Serial.print("Nhiet do: ");
+  Serial.println(t);               
+  Serial.print("Do am: ");
+  Serial.println(h);  
+  
+  delay(500);           
+
+                      
+}
