@@ -1,0 +1,64 @@
+#include <Servo.h>
+
+#define IN1	7
+#define IN2	6
+#define MAX_SPEED 255
+#define MIN_SPEED 0
+Servo myservo;
+
+int pos = 90; 
+int buttonpin=2;
+int door = 8;
+int doorstate = 0;
+int fan = 5;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(IN1, OUTPUT);
+	pinMode(IN2, OUTPUT);
+  pinMode(buttonpin, INPUT);
+  pinMode(door, INPUT);
+  pinMode(fan, INPUT);
+  myservo.attach(9); 
+}
+
+void motor_1_Tien(int speed) { 
+	speed = constrain(speed, MIN_SPEED, MAX_SPEED);
+	digitalWrite(IN1, HIGH);
+	analogWrite(IN2, 255 - speed);}
+void motor_1_Dung() {
+	digitalWrite(IN1, LOW);
+	digitalWrite(IN2, LOW);}
+
+ void loop(){
+  int buttonstate = digitalRead(buttonpin);
+  doorstate = digitalRead(door);
+  Serial.println(buttonstate); //1
+  int fanstate = digitalRead(fan);
+  Serial.println(fanstate); //2
+
+  if (doorstate == 1){
+    myservo.write(90);
+    delay(15);
+    Serial.println(doorstate); //3
+    Serial.println("door open"); //4
+  }
+  if (buttonstate == 1){
+    myservo.write(0);
+    Serial.println("door close"); //5
+    delay(15);
+  }
+  
+  if (fanstate == 1){
+    motor_1_Tien(255);
+    Serial.println("fanRun"); //6
+  }
+  else {
+    motor_1_Dung();
+    Serial.println("fanStop"); //6
+  }
+  delay(1000);
+  }
+    
+  
+ 
